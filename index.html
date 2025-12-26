@@ -341,7 +341,8 @@
         const searchContainer = document.getElementById('searchContainer');
         const pageSearch = document.getElementById('pageSearch');
 
-        const API_BASE = '/api'; 
+        const API_BASE = 'https://api.aws.us-east-1.cerebrium.ai/v4/p-ba56f76c/imagesfrompdfs-backend';
+        const AUTH_TOKEN = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJwcm9qZWN0SWQiOiJwLWJhNTZmNzZjIiwiaWF0IjoxNzY2NzUwMDIwLCJleHAiOjIwODIzMjYwMjB9.fRuvqqzPpGzBf6hhOn5jcER-8RIONb-W89ouvSPeir0VH_e8mRcOr917RtmiVXgtdSeDG-hH1nO-s9M9Jg0qmkmaO7ML96ipKws5mC8B3vp0qqiUjq3a-D-_IYBMitNZ2qmOooYR1lxOA3sNLafHAZ4uHIgZWVj6SN10sHTm--Z0xXMryR6QyQYNwJU_hbErwdnZY41JBJmCpEmYCUvKq-pfS0X1Gp2rCrXHtttZ3qLIDNvTpfJhSozCi_sZ4TNo8hoYdhRcsd5jgQ-IWek9_QTUNI7fed2mJUtbu5zL4iQpC3BEY5csfkj0G_CPpTOd-3T-k_ciHlOCJghgUt-1bg';
         let currentSessionId = null;
         let allExtractionsGlobal = []; // Store all extractions for ZIP generation
 
@@ -381,6 +382,24 @@
 
         async function processFiles() {
             const files = Array.from(fileInput.files);
+            
+            // 1. Check File Size Limit (10MB)
+            const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
+            for (const file of files) {
+                if (file.size > MAX_FILE_SIZE) {
+                    alert(`File "${file.name}" is too large. Maximum size is 10MB.`);
+                    return;
+                }
+            }
+
+            // 2. Check Usage Limit (5 times per session/IP via LocalStorage)
+            // Note: True IP limiting requires a backend, but LocalStorage is a good frontend deterrent.
+            const usageCount = parseInt(localStorage.getItem('pdf_usage_count') || '0');
+            if (usageCount >= 5) {
+                alert("You have reached the limit of 5 extractions. Please contact support for more access.");
+                return;
+            }
+
             overlay.style.display = 'flex';
             progressContainer.style.display = 'block';
             updateLoadingMessage();
@@ -414,6 +433,9 @@
 
                     const res = await fetch(`${API_BASE}/process`, { 
                         method: 'POST', 
+                        headers: {
+                            'Authorization': `Bearer ${AUTH_TOKEN}`
+                        },
                         body: formData
                     });
                     
@@ -436,6 +458,9 @@
                     progressBar.style.width = `${finalPercent}%`;
                     percentText.innerText = `${finalPercent}%`;
                 }
+
+                // Increment usage count after successful processing
+                localStorage.setItem('pdf_usage_count', (usageCount + 1).toString());
 
                 renderResults(allExtractions);
                 progressBar.style.width = '100%';
