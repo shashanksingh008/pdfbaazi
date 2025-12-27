@@ -59,6 +59,41 @@
             position: sticky;
             top: 0;
             z-index: 100;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .navbar {
+                padding: 1rem;
+                justify-content: center;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .nav-actions {
+                width: 100%;
+                justify-content: space-between;
+                gap: 0.5rem;
+            }
+
+            #searchContainer {
+                flex: 1;
+            }
+
+            #pageSearch {
+                width: 100% !important;
+            }
+
+            #zipContainer {
+                flex-shrink: 0;
+            }
         }
 
         .logo {
@@ -165,8 +200,8 @@
 
         .results-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
             margin-top: 2rem;
         }
 
@@ -254,7 +289,39 @@
         @media (max-width: 600px) {
             .hero-title { font-size: 1.8rem; }
             .upload-container { padding: 3rem 1rem; }
-            .navbar { padding: 1rem; }
+            /* .navbar { padding: 1rem; } */ /* Removed as it's handled above */
+
+            /* Results View Mobile Fixes */
+            .results-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            #resultsView {
+                padding: 2rem 1rem;
+            }
+
+            .results-header {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 0.5rem;
+            }
+
+            .item-card-content {
+                padding: 1rem !important;
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 1rem;
+            }
+
+            .item-card-actions {
+                width: 100%;
+            }
+
+            .item-card-actions .btn-black {
+                flex: 1;
+                text-align: center;
+            }
         }
     </style>
 </head>
@@ -267,14 +334,14 @@
         <a href="/" class="logo">
             <span>images</span>frompdfs.com
         </a>
-        <div style="display: flex; align-items: center; gap: 1.5rem;">
+        <div class="nav-actions">
             <div id="searchContainer" style="display: none; position: relative;">
                 <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); opacity: 0.4;">🔍</span>
-                <input type="text" id="pageSearch" placeholder="Search page number..." 
-                    style="padding: 0.6rem 1rem 0.6rem 2.5rem; border: 1px solid black; font-size: 0.75rem; width: 200px; outline: none;">
+                <input type="text" id="pageSearch" placeholder="Search page..." 
+                    style="padding: 0.6rem 1rem 0.6rem 2.5rem; border: 1px solid black; font-size: 0.75rem; width: 160px; outline: none;">
             </div>
             <div id="zipContainer" style="display: none;">
-                <button class="btn-black" id="downloadZipBtn" style="padding: 0.6rem 1.2rem; font-size: 0.7rem;">Download Zip</button>
+                <button class="btn-black" id="downloadZipBtn" style="padding: 0.6rem 1rem; font-size: 0.7rem; white-space: nowrap;">Zip</button>
             </div>
         </div>
     </nav>
@@ -311,7 +378,7 @@
 
     <!-- Results View -->
     <div id="resultsView">
-        <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid black; padding-bottom: 1rem;">
+        <div class="results-header" style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid black; padding-bottom: 1rem;">
             <h2 style="font-weight: 300;">Extracted Assets</h2>
             <div id="countText" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em;"></div>
         </div>
@@ -498,12 +565,12 @@
                     <div class="item-image-wrapper">
                         <img src="${asset.data}" alt="${asset.label}">
                     </div>
-                    <div style="padding: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                    <div class="item-card-content" style="padding: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <div style="font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700;">${asset.label}</div>
                             <div style="font-size: 0.7rem; color: #737373;">${asset.source}</div>
                         </div>
-                        <div style="display: flex; gap: 0.5rem;">
+                        <div class="item-card-actions" style="display: flex; gap: 0.5rem;">
                             <button class="btn-black" style="padding: 0.5rem 1rem; font-size: 0.6rem;" onclick="viewImage('${asset.data}')">View</button>
                             <button class="btn-black" style="padding: 0.5rem 0.8rem; font-size: 0.8rem;" onclick="downloadBase64Image('${asset.data}', '${asset.label}_${asset.id}.png')" title="Download">↓</button>
                         </div>
